@@ -65,8 +65,8 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * Мой возраст. Для заданного 0 < n < 200, рассматриваемого как возраст человека,
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
-fun ageDescription(age: Int): String {
-    return if (age % 100 in 11..14) {
+fun ageDescription(age: Int): String =
+    if (age % 100 in 11..14) {
         "$age лет"
     } else when (age % 10) {
         1 -> "$age год"
@@ -75,7 +75,6 @@ fun ageDescription(age: Int): String {
         4 -> "$age года"
         else -> "$age лет"
     }
-}
 
 /**
  * Простая (2 балла)
@@ -160,8 +159,8 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
     if (a >= b + c || b >= a + c || c >= a + b) { //неравенство треугольника
         return -1
     }
-    val maxSide = max(max(a, b), c)
-    val minSide = min(min(a, b), c)
+    val maxSide = maxOf(a, b, c)
+    val minSide = minOf(a, b, c)
     val midSide = a + b + c - maxSide - minSide
     val testValue = midSide.pow(2) + minSide.pow(2) //проверка по следствию из т. косинусов
     return when {
