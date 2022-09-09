@@ -246,6 +246,7 @@ fun factorizeToString(n: Int): String = factorize(n).joinToString("*")
 fun convert(n: Int, base: Int): List<Int> {
     var number = n
     val answer = mutableListOf<Int>()
+    if (n == 0) return listOf(0)
     while (number > 0) {
         answer.add(0, number % base)
         number /= base
