@@ -224,7 +224,7 @@ fun factorize(n: Int): List<Int> {
         }
         i++
     }
-    return answer.toList()
+    return answer
 }
 
 /**
@@ -248,9 +248,10 @@ fun convert(n: Int, base: Int): List<Int> {
     val answer = mutableListOf<Int>()
     if (n == 0) return listOf(0)
     while (number > 0) {
-        answer.add(0, number % base)
+        answer.add(number % base)
         number /= base
     }
+    answer.reverse()
     return answer
 }
 
@@ -267,13 +268,13 @@ fun convert(n: Int, base: Int): List<Int> {
  */
 fun convertToString(n: Int, base: Int): String {
     val digits = convert(n, base)
-    var answer = ""
-    for (i in digits)
-        answer += if (i < 10)
-            i.toString()
-        else
-            ('a' + (i - 10)).toString()
-    return answer
+    return buildString {
+        for (i in digits)
+            if (i < 10)
+                append(i)
+            else
+                append('a' + (i - 10))
+    }
 }
 
 /**
