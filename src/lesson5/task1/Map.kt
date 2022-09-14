@@ -3,7 +3,9 @@
 package lesson5.task1
 
 import lesson4.task1.mean
-import java.util.*
+import kotlin.math.min
+import kotlin.math.max
+import kotlin.math.pow
 
 // Урок 5: ассоциативные массивы и множества
 // Максимальное количество баллов = 14
@@ -233,7 +235,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
     var answer: String? = null
     for ((key, value) in stuff)
         if (value.first == kind)
-            if (value.second < cheapCost) {
+            if (value.second <= cheapCost) {
                 cheapCost = value.second
                 answer = key
             }
@@ -250,7 +252,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean =
-    chars.toSet() == word.lowercase(Locale.getDefault()).toSet()
+    chars.toSet().containsAll(word.lowercase().toSet())
 
 /**
  * Средняя (4 балла)
@@ -294,8 +296,8 @@ fun extractRepeats(list: List<String>): Map<String, Int> {
  */
 
 fun areAnagrams(a: String, b: String): Boolean =
-    a.length == b.length && canBuildFrom(a.toSet().toList(), b) && extractRepeats(
-        a.toList().map { it.toString() }) == extractRepeats(b.toList().map { it.toString() })
+    a.length == b.length && canBuildFrom(a.lowercase().toList(), b) && extractRepeats(
+        a.lowercase().map { it.toString() }) == extractRepeats(b.lowercase().map { it.toString() })
 
 fun hasAnagrams(words: List<String>): Boolean {
     for (i in 0..words.size - 2)
@@ -380,14 +382,14 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    val ordered = list.sorted()
-    var l = 0
-    var r = ordered.size - 1
-    while (l < r) {
-        val sum = ordered[l] + ordered[r]
-        if (sum == number) return Pair(l, r)
-        else if (sum < number) l++
-        else r--
+    val indexMap = mutableMapOf<Int, Int>()
+    for (i in list.indices) {
+        if (indexMap[number - list[i]] != null)
+            return Pair(
+                min(i, indexMap[number - list[i]]!!),
+                max(i, indexMap[number - list[i]]!!)
+            )
+        indexMap[list[i]] = i
     }
     return Pair(-1, -1)
 }
@@ -414,42 +416,33 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *   ) -> emptySet()
  */
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val usefulItems = mutableListOf<Pair<String, Double>>()
+    val usefulItems = mutableListOf<Pair<String, Pair<Int, Int>>>()
     for ((key, value) in treasures)
         if (value.first <= capacity)
-            usefulItems.add(Pair(key, value.second / value.first.toDouble()))
-    var sorted = false
-    while (!sorted) {
-        sorted = true
-        for (i in 0 until usefulItems.size - 1)
-            if (usefulItems[i].second < usefulItems[i + 1].second) {
-                sorted = false
-                val temp = usefulItems[i]
-                usefulItems[i] = usefulItems[i + 1]
-                usefulItems[i + 1] = temp
-            } else if (usefulItems[i].second == usefulItems[i + 1].second)
-                if (treasures[usefulItems[i].first]!!.first > treasures[usefulItems[i + 1].first]!!.first) {
-                    sorted = false
-                    val temp = usefulItems[i]
-                    usefulItems[i] = usefulItems[i + 1]
-                    usefulItems[i + 1] = temp
-                }
-    }
-    var availableSpace = capacity
-    val taken = mutableSetOf<String>()
-    var canTake = true
-    while (canTake) {
-        var tookItem = false
-        for (i in usefulItems.indices) {
-            if (treasures[usefulItems[i].first]!!.first <= availableSpace) {
+            usefulItems.add(Pair(key, value))
+    var bestTaken = setOf<String>()
+    var bestValue = 0
+    for (key in 0 until 2.0.pow(usefulItems.size).toInt()) {
+        val taken = mutableSetOf<String>()
+        var keyCopy = key
+        var i = 0
+        var weight = 0
+        var value = 0
+        while (keyCopy > 0) {
+            if (keyCopy % 2 == 1) {
                 taken.add(usefulItems[i].first)
-                availableSpace -= treasures[usefulItems[i].first]!!.first
-                usefulItems.remove(usefulItems[i])
-                tookItem = true
-                break
+                weight += usefulItems[i].second.first
+                value += usefulItems[i].second.second
+                if (weight > capacity) break
             }
+            keyCopy /= 2
+            i++
         }
-        canTake = tookItem
+        if (weight <= capacity)
+            if (value > bestValue) {
+                bestValue = value
+                bestTaken = taken
+            }
     }
-    return taken
+    return bestTaken
 }
