@@ -325,14 +325,14 @@ fun decimalFromString(str: String, base: Int): Int {
 fun roman(n: Int): String {
     val values = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
     val symbols = listOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
-    var answer = ""
     var number = n
-    for (i in values.indices)
-        while (number >= values[i]) {
-            answer += symbols[i]
-            number -= values[i]
-        }
-    return answer
+    return buildString {
+        for (i in values.indices)
+            while (number >= values[i]) {
+                append(symbols[i])
+                number -= values[i]
+            }
+    }
 }
 
 /**
