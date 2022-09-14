@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence")
+@file:Suppress("ConvertCallChainIntoSequence")
 
 package lesson5.task1
 
@@ -413,4 +413,43 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *     450
  *   ) -> emptySet()
  */
-fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> = TODO()
+fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+    val usefulItems = mutableListOf<Pair<String, Double>>()
+    for ((key, value) in treasures)
+        if (value.first <= capacity)
+            usefulItems.add(Pair(key, value.second / value.first.toDouble()))
+    var sorted = false
+    while (!sorted) {
+        sorted = true
+        for (i in 0 until usefulItems.size - 1)
+            if (usefulItems[i].second < usefulItems[i + 1].second) {
+                sorted = false
+                val temp = usefulItems[i]
+                usefulItems[i] = usefulItems[i + 1]
+                usefulItems[i + 1] = temp
+            } else if (usefulItems[i].second == usefulItems[i + 1].second)
+                if (treasures[usefulItems[i].first]!!.first > treasures[usefulItems[i + 1].first]!!.first) {
+                    sorted = false
+                    val temp = usefulItems[i]
+                    usefulItems[i] = usefulItems[i + 1]
+                    usefulItems[i + 1] = temp
+                }
+    }
+    var availableSpace = capacity
+    val taken = mutableSetOf<String>()
+    var canTake = true
+    while (canTake) {
+        var tookItem = false
+        for (i in usefulItems.indices) {
+            if (treasures[usefulItems[i].first]!!.first <= availableSpace) {
+                taken.add(usefulItems[i].first)
+                availableSpace -= treasures[usefulItems[i].first]!!.first
+                usefulItems.remove(usefulItems[i])
+                tookItem = true
+                break
+            }
+        }
+        canTake = tookItem
+    }
+    return taken
+}
