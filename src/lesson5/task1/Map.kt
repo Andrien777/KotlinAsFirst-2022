@@ -5,7 +5,6 @@ package lesson5.task1
 import lesson4.task1.mean
 import kotlin.math.min
 import kotlin.math.max
-import kotlin.math.pow
 
 // Урок 5: ассоциативные массивы и множества
 // Максимальное количество баллов = 14
@@ -416,29 +415,24 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     for ((key, value) in treasures)
         if (value.first <= capacity)
             usefulItems.add(Pair(key, value))
-    var bestTaken = setOf<String>()
-    var bestValue = 0
-    for (key in 0 until 2.0.pow(usefulItems.size).toInt()) {
-        val taken = mutableSetOf<String>()
-        var keyCopy = key
-        var i = 0
-        var weight = 0
-        var value = 0
-        while (keyCopy > 0) {
-            if (keyCopy % 2 == 1) {
-                taken.add(usefulItems[i].first)
-                weight += usefulItems[i].second.first
-                value += usefulItems[i].second.second
-                if (weight > capacity) break
+    val tbl = Array(usefulItems.size + 1) { Array(capacity) { Pair(0, setOf<String>()) } }
+    for (i in 1..usefulItems.size) {
+        for (j in 1 until capacity) {
+            if (usefulItems[i - 1].second.first > j)
+                tbl[i][j] = tbl[i - 1][j]
+            else {
+                val prev = tbl[i - 1][j].first
+                val next = tbl[i - 1][j - usefulItems[i - 1].second.first].first + usefulItems[i - 1].second.second
+                if (prev >= next)
+                    tbl[i][j] = tbl[i - 1][j]
+                else
+                    tbl[i][j] =
+                        Pair(
+                            next,
+                            tbl[i - 1][j - usefulItems[i - 1].second.first].second.plus(usefulItems[i - 1].first)
+                        )
             }
-            keyCopy /= 2
-            i++
         }
-        if (weight <= capacity)
-            if (value > bestValue) {
-                bestValue = value
-                bestTaken = taken
-            }
     }
-    return bestTaken
+    return tbl[usefulItems.size][capacity - 1].second
 }
