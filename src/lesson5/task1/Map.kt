@@ -415,9 +415,9 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     for ((key, value) in treasures)
         if (value.first <= capacity)
             usefulItems.add(Pair(key, value))
-    val tbl = Array(usefulItems.size + 1) { Array(capacity) { Pair(0, setOf<String>()) } }
+    val tbl = Array(usefulItems.size + 1) { Array(capacity + 1) { Pair(0, setOf<String>()) } }
     for (i in 1..usefulItems.size) {
-        for (j in 1 until capacity) {
+        for (j in 1..capacity) {
             if (usefulItems[i - 1].second.first > j)
                 tbl[i][j] = tbl[i - 1][j]
             else {
@@ -434,5 +434,5 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             }
         }
     }
-    return tbl[usefulItems.size][capacity - 1].second
+    return tbl[usefulItems.size][capacity].second
 }
