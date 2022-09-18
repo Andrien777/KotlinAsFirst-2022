@@ -162,21 +162,29 @@ fun dateDigitToStr(digital: String): String {
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = try {
-    if ("()" in phone)
-        throw Exception("InvalidBrackets")
-    else
-        buildString {
-            for (char in phone)
-                if (char in "123456789+")
-                    append(char)
-                else if (char in "()- ")
-                    continue
-                else
-                    throw Exception("Invalid Char")
+fun flattenPhoneNumber(phone: String): String {
+    try {
+        if ("()" in phone)
+            throw Exception("InvalidBrackets")
+        else {
+            var hasDigits = false
+            val ans = buildString {
+                for (char in phone)
+                    if (char in "123456789") {
+                        append(char)
+                        hasDigits = true
+                    } else if (char == '+')
+                        append(char)
+                    else if (char in "()- ")
+                        continue
+                    else
+                        throw Exception("Invalid Char")
+            }
+            return if (hasDigits) ans else ""
         }
-} catch (e: Exception) {
-    ""
+    } catch (e: Exception) {
+        return ""
+    }
 }
 
 /**
