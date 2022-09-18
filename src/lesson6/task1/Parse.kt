@@ -399,6 +399,8 @@ fun checkBracketsAndCommands(str: String): Boolean {
             height++
         else if (char == ']')
             height--
+        if (height < 0)
+            return false
     }
     return height == 0
 }
