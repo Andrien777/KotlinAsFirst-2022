@@ -79,6 +79,8 @@ fun main() {
  */
 fun dateStrToDigit(str: String): String {
     val parts = str.split(" ")
+    if (parts.size != 3)
+        return ""
     val day: Int
     val month: Int
     val year: Int
@@ -103,7 +105,8 @@ fun dateStrToDigit(str: String): String {
     } catch (e: NumberFormatException) {
         return ""
     }
-    if (month == 0 || day !in 1..daysInMonth(month, year) || year < 0) return ""
+    if (month == 0 || day !in 1..daysInMonth(month, year) || year < 0)
+        return ""
     return String.format("%02d.%02d.%d", day, month, year)
 }
 
@@ -119,6 +122,8 @@ fun dateStrToDigit(str: String): String {
  */
 fun dateDigitToStr(digital: String): String {
     val parts = digital.split(".")
+    if (parts.size != 3)
+        return ""
     val day: Int
     val month: Int
     val year: Int
@@ -129,7 +134,8 @@ fun dateDigitToStr(digital: String): String {
     } catch (e: NumberFormatException) {
         return ""
     }
-    if (month !in 1..12 || day !in 1..daysInMonth(month, year) || year < 0 || parts.size != 3) return ""
+    if (month !in 1..12 || day !in 1..daysInMonth(month, year) || year < 0)
+        return ""
     val monthStr = when (month) {
         1 -> "января"
         2 -> "февраля"
@@ -228,13 +234,17 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
+    if (expression.contains("""[^\d+\- ]""".toRegex()) || !expression.contains("""\d""".toRegex()))
+        throw IllegalArgumentException()
     val arr = expression.split(" ")
     var current: Int
     try {
-        if (!arr[0][0].isDigit()) throw IllegalArgumentException()
+        if (!arr[0][0].isDigit())
+            throw IllegalArgumentException()
         current = arr[0].toInt()
         for (i in 1 until arr.size step 2) {
-            if (!arr[i + 1][0].isDigit()) throw IllegalArgumentException()
+            if (!arr[i + 1][0].isDigit())
+                throw IllegalArgumentException()
             if (arr[i] == "+")
                 current += arr[i + 1].toInt()
             else if (arr[i] == "-")
@@ -286,18 +296,24 @@ fun firstDuplicateIndex(str: String): Int {
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше нуля либо равны нулю.
  */
-fun mostExpensive(description: String): String = try {
-    val prices = description.split("; ")
-    var best = Pair("", -1.0)
-    for (unit in prices) {
-        val data = unit.split(" ")
-        val price = data[1].toDouble()
-        if (price > best.second)
-            best = Pair(data[0], price)
+fun mostExpensive(description: String): String {
+    try {
+        val prices = description.split("; ")
+        var best = Pair("", -1.0)
+        for (unit in prices) {
+            val data = unit.split(" ")
+            if (data.size != 2)
+                return ""
+            val price = data[1].toDouble()
+            if (price < 0)
+                return ""
+            if (price > best.second)
+                best = Pair(data[0], price)
+        }
+        return best.first
+    } catch (e: NumberFormatException) {
+        return ""
     }
-    best.first
-} catch (e: NumberFormatException) {
-    ""
 }
 
 /**
