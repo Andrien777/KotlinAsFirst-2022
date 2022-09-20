@@ -100,11 +100,11 @@ fun dateStrToDigit(str: String): String {
             "декабря" -> 12
             else -> 0
         }
-    } catch (e: Exception) {
+    } catch (e: NumberFormatException) {
         return ""
     }
     if (month == 0 || day !in 1..daysInMonth(month, year) || year < 0) return ""
-    return "${twoDigitStr(day)}.${twoDigitStr(month)}.$year"
+    return String.format("%02d.%02d.%d", day, month, year)
 }
 
 /**
@@ -126,7 +126,7 @@ fun dateDigitToStr(digital: String): String {
         day = parts[0].toInt()
         month = parts[1].toInt()
         year = parts[2].toInt()
-    } catch (e: Exception) {
+    } catch (e: NumberFormatException) {
         return ""
     }
     if (month !in 1..12 || day !in 1..daysInMonth(month, year) || year < 0 || parts.size != 3) return ""
@@ -163,28 +163,11 @@ fun dateDigitToStr(digital: String): String {
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
 fun flattenPhoneNumber(phone: String): String {
-    try {
-        if ("()" in phone)
-            throw Exception("InvalidBrackets")
-        else {
-            var hasDigits = false
-            val ans = buildString {
-                for (char in phone)
-                    if (char in "123456789") {
-                        append(char)
-                        hasDigits = true
-                    } else if (char == '+')
-                        append(char)
-                    else if (char in "()- ")
-                        continue
-                    else
-                        throw Exception("Invalid Char")
-            }
-            return if (hasDigits) ans else ""
-        }
-    } catch (e: Exception) {
+    if (phone.contains("""(.*\(\).*)|[^0-9+()\- ]+""".toRegex()))
         return ""
-    }
+    if (!phone.contains("""\d+""".toRegex()))
+        return ""
+    return phone.replace("""\)|\(|-|\s""".toRegex(), "")
 }
 
 /**
@@ -198,19 +181,18 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    val arr = jumps.split(" ")
+    if (jumps.contains("""[^0-9\-% ]+""".toRegex()))
+        return -1
+    val arr = jumps.replace("""[-%]""".toRegex(), "")
+        .replace("""  +""".toRegex(), " ")
+        .split(" ")
+        .filter { it != "" }
     var best = -1
-    for (res in arr)
-        try {
-            val resNum = res.toInt()
-            if (resNum > best)
-                best = resNum
-        } catch (e: Exception) {
-            if (res in "%-")
-                continue
-            else
-                return -1
-        }
+    for (res in arr) {
+        val resNum = res.toInt()
+        if (resNum > best)
+            best = resNum
+    }
     return best
 }
 
@@ -226,22 +208,14 @@ fun bestLongJump(jumps: String): Int {
  * вернуть -1.
  */
 fun bestHighJump(jumps: String): Int {
-    val arr = jumps.split(" ")
-    var current = -1
-    var best = -1
-    for (res in arr)
-        try {
-            current = res.toInt()
-        } catch (e: Exception) {
-            for (char in res)
-                if (char in "%-")
-                    continue
-                else if (char == '+')
-                    best = current
-                else
-                    return -1
-        }
-    return best
+    if (jumps.contains("""[^0-9\-%+ ]+""".toRegex()))
+        return -1
+    val arr = ("$jumps ").replace("""[%-]+""".toRegex(), "")
+        .replace("""\d+ {2}""".toRegex(), "")
+        .replace(" + ", " ")
+        .split(" ")
+        .filter { it != "" }
+    return arr.last().toInt()
 }
 
 /**
@@ -257,18 +231,18 @@ fun plusMinus(expression: String): Int {
     val arr = expression.split(" ")
     var current: Int
     try {
-        if (!arr[0][0].isDigit()) throw Exception()
+        if (!arr[0][0].isDigit()) throw IllegalArgumentException()
         current = arr[0].toInt()
         for (i in 1 until arr.size step 2) {
-            if (!arr[i + 1][0].isDigit()) throw Exception()
+            if (!arr[i + 1][0].isDigit()) throw IllegalArgumentException()
             if (arr[i] == "+")
                 current += arr[i + 1].toInt()
             else if (arr[i] == "-")
                 current -= arr[i + 1].toInt()
             else
-                throw Exception()
+                throw IllegalArgumentException()
         }
-    } catch (e: Exception) {
+    } catch (e: NumberFormatException) {
         throw IllegalArgumentException()
     }
     return current
@@ -322,7 +296,7 @@ fun mostExpensive(description: String): String = try {
             best = Pair(data[0], price)
     }
     best.first
-} catch (e: Exception) {
+} catch (e: NumberFormatException) {
     ""
 }
 

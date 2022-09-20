@@ -296,16 +296,7 @@ fun extractLetters(str: String): Map<Char, Int> {
     return answer
 }
 
-fun hasAnagrams(words: List<String>): Boolean {
-    val repeatsMap = mutableMapOf<String, Map<String, Int>>()
-    for (word in words)
-        repeatsMap[word] = extractRepeats(word.lowercase().toList().map { it.toString() })
-    for (i in 0..words.size - 2)
-        for (j in i + 1 until words.size)
-            if (extractLetters(words[i]) == extractLetters(words[j]))
-                return true
-    return false
-}
+fun hasAnagrams(words: List<String>): Boolean = words.map { extractLetters(it) }.toSet().size < words.size
 
 /**
  * Сложная (5 баллов)
