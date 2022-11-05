@@ -420,7 +420,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var buff = ""
     while (reader.available() > 0) {
         val rawByte = reader.read()
-        val byte = if (rawByte == 13) '\n' else  rawByte.toChar()
+        val byte = if (rawByte == 13) '\n' else rawByte.toChar()
         if (byte == '\n')
             reader.read()
         if (byte in "*~\n") {
@@ -632,7 +632,55 @@ fun markdownToHtml(inputName: String, outputName: String) {
  *
  */
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val answer = rhv * lhv
+    val lineLen = answer.toString().length + 1
+    val writer = File(outputName).bufferedWriter()
+    writer.write(buildString {
+        for (i in 1..(lineLen - lhv.toString().length))
+            append(" ")
+        append(lhv)
+    })
+    writer.newLine()
+    writer.write(buildString {
+        append('*')
+        for (i in 2..(lineLen - rhv.toString().length))
+            append(" ")
+        append(rhv)
+    })
+    writer.newLine()
+    writer.write(buildString {
+        for (i in 1..lineLen)
+            append("-")
+    })
+    writer.newLine()
+    val mul = rhv.toString().reversed()
+    writer.write(buildString {
+        for (i in 1..(lineLen - (lhv * (rhv % 10)).toString().length))
+            append(" ")
+        append(lhv * (rhv % 10))
+    })
+    writer.newLine()
+    for (k in 1 until mul.length) {
+        val num = lhv * mul[k].digitToInt()
+        writer.write(buildString {
+            append('+')
+            for (i in 2..(lineLen - num.toString().length - k))
+                append(" ")
+            append(num)
+        })
+        writer.newLine()
+    }
+    writer.write(buildString {
+        for (i in 1..lineLen)
+            append("-")
+    })
+    writer.newLine()
+    writer.write(buildString {
+        append(" ")
+        append(answer)
+    })
+    writer.newLine()
+    writer.close()
 }
 
 
