@@ -3,6 +3,7 @@
 package lesson7.task1
 
 import java.io.File
+import kotlin.math.floor
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -115,22 +116,25 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-//    val replaceMap = mapOf('Я' to 'А', 'Ю' to 'У', 'Ы' to 'И', 'я' to 'а', 'ю' to 'у', 'ы' to 'и')
-//    val writer = File(outputName).bufferedWriter()
-//    fun replaceAfterLetter(str: String, letter: Char): String{
-//        var ans = ""
-//        for (ch in str) {
-//            if (ch in replaceMap) {
-//                if ans.
-//            }
-//        }
-//        return ans
-//    }
-//    File(inputName).forEachLine {
-//        var str = it
-//
-//    }
-//    writer.close()
+    val replaceMap = mapOf('Я' to 'А', 'Ю' to 'У', 'Ы' to 'И', 'я' to 'а', 'ю' to 'у', 'ы' to 'и')
+    val writer = File(outputName).bufferedWriter()
+    File(inputName).forEachLine {
+        writer.write(buildString {
+            for (ch in it) {
+                if (ch in replaceMap) {
+                    if (this.isNotEmpty() && this.last() in "жчшщЖЧШЩ") {
+                        append(replaceMap[ch])
+                    } else {
+                        append(ch)
+                    }
+                } else {
+                    append(ch)
+                }
+            }
+        })
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
@@ -151,7 +155,17 @@ fun sibilants(inputName: String, outputName: String) {
  *
  */
 fun centerFile(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    var maxLen = -1
+    File(inputName).forEachLine {
+        if (it.trim().length > maxLen) maxLen = it.trim().length
+    }
+    File(inputName).forEachLine {
+        val spacesNum = floor((maxLen - it.trim().length) / 2.0).toInt()
+        writer.write(buildString { for (i in 1..spacesNum) append(" ") } + it.trim())
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
@@ -182,7 +196,32 @@ fun centerFile(inputName: String, outputName: String) {
  * 8) Если входной файл удовлетворяет требованиям 1-7, то он должен быть в точности идентичен выходному файлу
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    var maxLen = -1
+    File(inputName).forEachLine {
+        if (it.trim().length > maxLen) maxLen = it.trim().length
+    }
+    File(inputName).forEachLine {
+        val spacesNum = it.trim().count { chr -> chr == ' ' }
+        val addPerSpace = floor((maxLen - it.trim().length) / spacesNum.toDouble()).toInt()
+        var spacesLeft = (maxLen - it.trim().length) - spacesNum * addPerSpace
+        writer.write(buildString {
+            for (chr in it.trim()) {
+                if (chr == ' ') {
+                    append(' ')
+                    append(buildString { for (i in 1..addPerSpace) append(' ') })
+                    if (spacesLeft > 0) {
+                        append(' ')
+                        spacesLeft -= 1
+                    }
+                } else {
+                    append(chr)
+                }
+            }
+        })
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
@@ -205,7 +244,22 @@ fun alignFileByWidth(inputName: String, outputName: String) {
  * Ключи в ассоциативном массиве должны быть в нижнем регистре.
  *
  */
-fun top20Words(inputName: String): Map<String, Int> = TODO()
+fun top20Words(inputName: String): Map<String, Int> {
+    val ans = mutableMapOf<String, Int>()
+    File(inputName).forEachLine { str ->
+        val words =
+            str.split("""[^a-zA-Zа-яА-ЯёЁ]""".toRegex()).filter { it.contains("""[a-zA-Zа-яА-ЯёЁ]""".toRegex()) }
+        for (word in words) {
+            if (word.lowercase() in ans) {
+                ans[word.lowercase()] = ans[word.lowercase()]!! + 1
+            } else {
+                ans[word.lowercase()] = 1
+            }
+        }
+    }
+    val qties = ans.values.toList().sortedDescending()
+    return ans.filter { it.value >= (if (qties.size >= 20) qties[19] else 0) }
+}
 
 /**
  * Средняя (14 баллов)
@@ -243,7 +297,28 @@ fun top20Words(inputName: String): Map<String, Int> = TODO()
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    val form_dict = dictionary.mapKeys { it.key.lowercase()[0] }.mapValues { it.value.lowercase() }
+    File(inputName).forEachLine {
+        writer.write(buildString {
+            for (ch in it) {
+                if (ch.lowercase()[0] in form_dict) {
+                    if (ch.isUpperCase()) {
+                        append(form_dict[ch.lowercase()[0]]!![0].uppercase())
+                        for (i in 1 until dictionary[ch.lowercase()[0]]!!.length) {
+                            append(form_dict[ch.lowercase()[0]]!![i])
+                        }
+                    } else {
+                        append(form_dict[ch.lowercase()[0]])
+                    }
+                } else {
+                    append(ch)
+                }
+            }
+        })
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
@@ -270,8 +345,23 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
  *
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
+
+fun noRepeats(str: String): Boolean = str.lowercase().toSet().size == str.length
+
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-    TODO()
+    val ans_set = mutableSetOf<String>()
+    var maxLen = 0
+    File(inputName).forEachLine {
+        if (noRepeats(it)) {
+            if (it.length > maxLen) {
+                ans_set.clear()
+                ans_set.add(it)
+                maxLen = it.length
+            } else if (it.length == maxLen)
+                ans_set.add(it)
+        }
+    }
+    File(outputName).bufferedWriter().use { it.write(ans_set.joinToString(", ")) }
 }
 
 /**
@@ -320,7 +410,87 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    TODO()
+    val stack = ArrayDeque<String>()
+    val reader = File(inputName).inputStream()
+    val writer = File(outputName).bufferedWriter()
+    writer.write("<html><body><p>")
+    stack.add("</html>")
+    stack.add("</body>")
+    stack.add("</p>")
+    var buff = ""
+    while (reader.available() > 0) {
+        val rawByte = reader.read()
+        val byte = if (rawByte == 13) '\n' else  rawByte.toChar()
+        if (byte == '\n')
+            reader.read()
+        if (byte in "*~\n") {
+            if (buff == "*" && byte != '*') {
+                if (stack.isNotEmpty() && stack.last() == "</i>") {
+                    writer.write(stack.last())
+                    stack.removeLast()
+                } else {
+                    writer.write("<i>")
+                    stack.add("</i>")
+                }
+                buff = ""
+            } else if (buff == "\n" && byte != '\n') {
+                writer.newLine()
+                buff = ""
+            }
+            buff += byte
+            if (buff == "**") {
+                if (stack.isNotEmpty() && stack.last() == "</b>") {
+                    writer.write(stack.last())
+                    stack.removeLast()
+                } else {
+                    writer.write("<b>")
+                    stack.add("</b>")
+                }
+                buff = ""
+            } else if (buff == "~~") {
+                if (stack.isNotEmpty() && stack.last() == "</s>") {
+                    writer.write(stack.last())
+                    stack.removeLast()
+                } else {
+                    writer.write("<s>")
+                    stack.add("</s>")
+                }
+                buff = ""
+            } else if (buff == "\n\n") {
+                if (stack.isNotEmpty() && "</p>" in stack) {
+                    writer.write(stack.last())
+                    stack.remove("</p>")
+                    writer.write("<p>")
+                    stack.add("</p>")
+                } else {
+                    writer.write("<p>")
+                    stack.add("</p>")
+                }
+                buff = ""
+            }
+        } else {
+            if (buff == "*") {
+                if (stack.isNotEmpty() && stack.last() == "</i>") {
+                    writer.write(stack.last())
+                    stack.removeLast()
+                } else {
+                    writer.write("<i>")
+                    stack.add("</i>")
+                }
+                buff = ""
+            } else if (buff == "\n") {
+                writer.newLine()
+                buff = ""
+            }
+            writer.write(byte.toString())
+        }
+    }
+    while (stack.isNotEmpty()) {
+        writer.write(stack.last())
+        stack.removeLast()
+    }
+    writer.close()
+    reader.close()
 }
 
 /**
