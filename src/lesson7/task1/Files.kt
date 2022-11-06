@@ -200,11 +200,13 @@ fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     var maxLen = -1
     File(inputName).forEachLine {
-        if (it.trim().replace(" {2,}".toRegex(), " ").length > maxLen) maxLen = it.trim().replace(" {2,}".toRegex(), " ").length
+        if (it.trim().replace(" {2,}".toRegex(), " ").length > maxLen) maxLen =
+            it.trim().replace(" {2,}".toRegex(), " ").length
     }
     File(inputName).forEachLine {
         val spacesNum = it.trim().replace(" {2,}".toRegex(), " ").count { chr -> chr == ' ' }
-        val addPerSpace = floor((maxLen - it.trim().replace(" {2,}".toRegex(), " ").length) / spacesNum.toDouble()).toInt()
+        val addPerSpace =
+            floor((maxLen - it.trim().replace(" {2,}".toRegex(), " ").length) / spacesNum.toDouble()).toInt()
         var spacesLeft = (maxLen - it.trim().replace(" {2,}".toRegex(), " ").length) - spacesNum * addPerSpace
         writer.write(buildString {
             for (chr in it.trim().replace(" {2,}".toRegex(), " ")) {
@@ -721,14 +723,14 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     writer.write(" | ")
     writer.write(rhv.toString())
     writer.newLine()
-    var offset = 0
+    var offset = 1
     var pos = 0
     var rem = ""
     for (i in ans.indices) {
         val num = rhv * (ans[i] - '0')
-        if (offset != 0 && num.toString().length == rem.length)
-            offset -= 1
-        writer.write(buildString { for (j in 1..offset) append(" ") })
+        if (rem != "")
+            offset += rem.length - num.toString().length - 1
+        writer.write(buildString { for (j in 1 until offset) append(" ") })
         writer.write("-")
         writer.write(num.toString())
         if (i == 0) {
@@ -736,25 +738,25 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             writer.write(ans)
         }
         writer.newLine()
-        writer.write(buildString { for (j in 1..offset) append(" ") })
+        writer.write(buildString { for (j in 1 until offset) append(" ") })
         writer.write(buildString { for (j in 1..num.toString().length + 1) append("-") })
         writer.newLine()
-        writer.write(buildString { for (j in 1..offset) append(" ") })
+        writer.write(buildString { for (j in 1 until offset) append(" ") })
         if (rem == "") {
             rem = lhv.toString().substring(pos, min(pos + num.toString().length, lhv.toString().length))
-        }
-        pos = min(pos + num.toString().length, lhv.toString().length)
-        rem = (rem.toInt() - num).toString()
-        if (pos < lhv.toString().length) {
-            writer.write(String.format("%${num.toString().length + 1}s%c", rem, lhv.toString()[pos]))
-            rem += lhv.toString()[pos]
+            pos = min(pos + num.toString().length, lhv.toString().length)
         } else {
-            writer.write(String.format("%${num.toString().length + 1}s", rem))
+            pos += 1
+        }
+        rem = (rem.toInt() - num).toString()
+        writer.write(buildString { for (j in 1..num.toString().length - rem.length + 1) append(" ") })
+        writer.write(rem)
+        offset += num.toString().length - rem.length + 1
+        if (pos < lhv.toString().length) {
+            writer.write(lhv.toString()[pos].toString())
+            rem += lhv.toString()[pos]
         }
         writer.newLine()
-        if (num != 0 || rem[0] == '0') {
-            offset += num.toString().length
-        }
     }
     writer.close()
 }
