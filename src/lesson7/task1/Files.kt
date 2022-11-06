@@ -4,6 +4,7 @@ package lesson7.task1
 
 import java.io.File
 import kotlin.math.floor
+import kotlin.math.min
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -420,8 +421,8 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var buff = ""
     while (reader.available() > 0) {
         val rawByte = reader.read()
-        val byte = if (rawByte == 13) '\n' else rawByte.toChar()
-        if (byte == '\n')
+        val byte = if (rawByte == 13 || rawByte == 10) '\n' else rawByte.toChar()
+        if (rawByte == 13)
             reader.read()
         if (byte in "*~\n") {
             if (buff == "*" && byte != '*') {
@@ -467,6 +468,9 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                     stack.add("</p>")
                 }
                 buff = ""
+            } else {
+                writer.write(buff[0].toString())
+                buff = byte.toString()
             }
         } else {
             if (buff == "*") {
@@ -480,6 +484,9 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                 buff = ""
             } else if (buff == "\n") {
                 writer.newLine()
+                buff = ""
+            } else {
+                writer.write(buff)
                 buff = ""
             }
             writer.write(byte.toString())
@@ -705,6 +712,48 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  *
  */
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val ans = (lhv / rhv).toString()
+    val writer = File(outputName).bufferedWriter()
+    writer.write(" ")
+    writer.write(lhv.toString())
+    writer.write(" | ")
+    writer.write(rhv.toString())
+    writer.newLine()
+    var offset = 0
+    var pos = 0
+    var rem = ""
+    for (i in ans.indices) {
+        val num = rhv * (ans[i] - '0')
+        if (offset != 0 && num.toString().length == rem.length)
+            offset -= 1
+        writer.write(buildString { for (j in 1..offset) append(" ") })
+        writer.write("-")
+        writer.write(num.toString())
+        if (i == 0) {
+            writer.write(buildString { for (j in 1 until lhv.toString().length + 4 - num.toString().length) append(' ') })
+            writer.write(ans)
+        }
+        writer.newLine()
+        writer.write(buildString { for (j in 1..offset) append(" ") })
+        writer.write(buildString { for (j in 1..num.toString().length + 1) append("-") })
+        writer.newLine()
+        writer.write(buildString { for (j in 1..offset) append(" ") })
+        if (rem == "") {
+            rem = lhv.toString().substring(pos, min(pos + num.toString().length, lhv.toString().length))
+        }
+        pos = min(pos + num.toString().length, lhv.toString().length)
+        rem = (rem.toInt() - num).toString()
+        if (pos < lhv.toString().length) {
+            writer.write(String.format("%${num.toString().length + 1}s%c", rem, lhv.toString()[pos]))
+            rem += lhv.toString()[pos]
+        } else {
+            writer.write(String.format("%${num.toString().length + 1}s", rem))
+        }
+        writer.newLine()
+        if (num != 0) {
+            offset += num.toString().length
+        }
+    }
+    writer.close()
 }
 
