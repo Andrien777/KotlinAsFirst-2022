@@ -299,19 +299,19 @@ fun top20Words(inputName: String): Map<String, Int> {
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val form_dict = dictionary.mapKeys { it.key.lowercase()[0] }.mapValues { it.value.lowercase() }
+    val formDict = dictionary.mapKeys { it.key.lowercase()[0] }.mapValues { it.value.lowercase() }
     File(inputName).forEachLine {
         writer.write(buildString {
             for (ch in it) {
-                if (ch.lowercase()[0] in form_dict) {
-                    if(form_dict[ch.lowercase()[0]] != "") {
+                if (ch.lowercase()[0] in formDict) {
+                    if (formDict[ch.lowercase()[0]] != "") {
                         if (ch.isUpperCase()) {
-                            append(form_dict[ch.lowercase()[0]]!![0].uppercase())
-                            for (i in 1 until dictionary[ch.lowercase()[0]]!!.length) {
-                                append(form_dict[ch.lowercase()[0]]!![i])
+                            append(formDict[ch.lowercase()[0]]!![0].uppercase())
+                            for (i in 1 until formDict[ch.lowercase()[0]]!!.length) {
+                                append(formDict[ch.lowercase()[0]]!![i])
                             }
                         } else {
-                            append(form_dict[ch.lowercase()[0]])
+                            append(formDict[ch.lowercase()[0]]!!)
                         }
                     }
                 } else {
