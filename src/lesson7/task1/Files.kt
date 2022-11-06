@@ -87,7 +87,7 @@ fun deleteMarked(inputName: String, outputName: String) {
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val ans = substrings.associateWith { 0 }.toMutableMap()
     File(inputName).forEachLine { str ->
-        substrings.forEach {
+        ans.keys.forEach {
             var i = 0
             while (i < str.length) {
                 if (i + it.length > str.length) break
@@ -207,7 +207,7 @@ fun alignFileByWidth(inputName: String, outputName: String) {
         val addPerSpace = floor((maxLen - it.trim().length) / spacesNum.toDouble()).toInt()
         var spacesLeft = (maxLen - it.trim().length) - spacesNum * addPerSpace
         writer.write(buildString {
-            for (chr in it.trim()) {
+            for (chr in it.trim().replace(" {2}".toRegex(), " ")) {
                 if (chr == ' ') {
                     append(' ')
                     append(buildString { for (i in 1..addPerSpace) append(' ') })
@@ -304,13 +304,15 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
         writer.write(buildString {
             for (ch in it) {
                 if (ch.lowercase()[0] in form_dict) {
-                    if (ch.isUpperCase()) {
-                        append(form_dict[ch.lowercase()[0]]!![0].uppercase())
-                        for (i in 1 until dictionary[ch.lowercase()[0]]!!.length) {
-                            append(form_dict[ch.lowercase()[0]]!![i])
+                    if(form_dict[ch.lowercase()[0]] != "") {
+                        if (ch.isUpperCase()) {
+                            append(form_dict[ch.lowercase()[0]]!![0].uppercase())
+                            for (i in 1 until dictionary[ch.lowercase()[0]]!!.length) {
+                                append(form_dict[ch.lowercase()[0]]!![i])
+                            }
+                        } else {
+                            append(form_dict[ch.lowercase()[0]])
                         }
-                    } else {
-                        append(form_dict[ch.lowercase()[0]])
                     }
                 } else {
                     append(ch)
@@ -750,7 +752,7 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             writer.write(String.format("%${num.toString().length + 1}s", rem))
         }
         writer.newLine()
-        if (num != 0) {
+        if (num != 0 || rem[0] == '0') {
             offset += num.toString().length
         }
     }
