@@ -200,14 +200,14 @@ fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     var maxLen = -1
     File(inputName).forEachLine {
-        if (it.trim().length > maxLen) maxLen = it.trim().length
+        if (it.trim().replace(" {2,}".toRegex(), " ").length > maxLen) maxLen = it.trim().replace(" {2,}".toRegex(), " ").length
     }
     File(inputName).forEachLine {
-        val spacesNum = it.trim().count { chr -> chr == ' ' }
-        val addPerSpace = floor((maxLen - it.trim().length) / spacesNum.toDouble()).toInt()
-        var spacesLeft = (maxLen - it.trim().length) - spacesNum * addPerSpace
+        val spacesNum = it.trim().replace(" {2,}".toRegex(), " ").count { chr -> chr == ' ' }
+        val addPerSpace = floor((maxLen - it.trim().replace(" {2,}".toRegex(), " ").length) / spacesNum.toDouble()).toInt()
+        var spacesLeft = (maxLen - it.trim().replace(" {2,}".toRegex(), " ").length) - spacesNum * addPerSpace
         writer.write(buildString {
-            for (chr in it.trim().replace(" {2}".toRegex(), " ")) {
+            for (chr in it.trim().replace(" {2,}".toRegex(), " ")) {
                 if (chr == ' ') {
                     append(' ')
                     append(buildString { for (i in 1..addPerSpace) append(' ') })
