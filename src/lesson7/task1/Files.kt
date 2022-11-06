@@ -354,19 +354,19 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
 fun noRepeats(str: String): Boolean = str.lowercase().toSet().size == str.length
 
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-    val ans_set = mutableSetOf<String>()
+    val ansSet = mutableSetOf<String>()
     var maxLen = 0
     File(inputName).forEachLine {
         if (noRepeats(it)) {
             if (it.length > maxLen) {
-                ans_set.clear()
-                ans_set.add(it)
+                ansSet.clear()
+                ansSet.add(it)
                 maxLen = it.length
             } else if (it.length == maxLen)
-                ans_set.add(it)
+                ansSet.add(it)
         }
     }
-    File(outputName).bufferedWriter().use { it.write(ans_set.joinToString(", ")) }
+    File(outputName).bufferedWriter().use { it.write(ansSet.joinToString(", ")) }
 }
 
 /**
@@ -443,55 +443,69 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                 buff = ""
             }
             buff += byte
-            if (buff == "**") {
-                if (stack.isNotEmpty() && stack.last() == "</b>") {
-                    writer.write(stack.last())
-                    stack.removeLast()
-                } else {
-                    writer.write("<b>")
-                    stack.add("</b>")
+            when (buff) {
+                "**" -> {
+                    if (stack.isNotEmpty() && stack.last() == "</b>") {
+                        writer.write(stack.last())
+                        stack.removeLast()
+                    } else {
+                        writer.write("<b>")
+                        stack.add("</b>")
+                    }
+                    buff = ""
                 }
-                buff = ""
-            } else if (buff == "~~") {
-                if (stack.isNotEmpty() && stack.last() == "</s>") {
-                    writer.write(stack.last())
-                    stack.removeLast()
-                } else {
-                    writer.write("<s>")
-                    stack.add("</s>")
+
+                "~~" -> {
+                    if (stack.isNotEmpty() && stack.last() == "</s>") {
+                        writer.write(stack.last())
+                        stack.removeLast()
+                    } else {
+                        writer.write("<s>")
+                        stack.add("</s>")
+                    }
+                    buff = ""
                 }
-                buff = ""
-            } else if (buff == "\n\n") {
-                if (stack.isNotEmpty() && "</p>" in stack) {
-                    writer.write(stack.last())
-                    stack.remove("</p>")
-                    writer.write("<p>")
-                    stack.add("</p>")
-                } else {
-                    writer.write("<p>")
-                    stack.add("</p>")
+
+                "\n\n" -> {
+                    if (stack.isNotEmpty() && "</p>" in stack) {
+                        writer.write(stack.last())
+                        stack.remove("</p>")
+                        writer.write("<p>")
+                        stack.add("</p>")
+                    } else {
+                        writer.write("<p>")
+                        stack.add("</p>")
+                    }
+                    buff = ""
                 }
-                buff = ""
-            } else {
-                writer.write(buff[0].toString())
-                buff = byte.toString()
+
+                else -> {
+                    writer.write(buff[0].toString())
+                    buff = byte.toString()
+                }
             }
         } else {
-            if (buff == "*") {
-                if (stack.isNotEmpty() && stack.last() == "</i>") {
-                    writer.write(stack.last())
-                    stack.removeLast()
-                } else {
-                    writer.write("<i>")
-                    stack.add("</i>")
+            when (buff) {
+                "*" -> {
+                    if (stack.isNotEmpty() && stack.last() == "</i>") {
+                        writer.write(stack.last())
+                        stack.removeLast()
+                    } else {
+                        writer.write("<i>")
+                        stack.add("</i>")
+                    }
+                    buff = ""
                 }
-                buff = ""
-            } else if (buff == "\n") {
-                writer.newLine()
-                buff = ""
-            } else {
-                writer.write(buff)
-                buff = ""
+
+                "\n" -> {
+                    writer.newLine()
+                    buff = ""
+                }
+
+                else -> {
+                    writer.write(buff)
+                    buff = ""
+                }
             }
             writer.write(byte.toString())
         }
