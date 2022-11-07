@@ -4,6 +4,7 @@ package lesson7.task1
 
 import java.io.File
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 
 // Урок 7: работа с файлами
@@ -163,7 +164,7 @@ fun centerFile(inputName: String, outputName: String) {
     }
     File(inputName).forEachLine {
         val spacesNum = floor((maxLen - it.trim().length) / 2.0).toInt()
-        writer.write(buildString { for (i in 1..spacesNum) append(" ") } + it.trim())
+        writer.write(" ".repeat(spacesNum) + it.trim())
         writer.newLine()
     }
     writer.close()
@@ -212,7 +213,7 @@ fun alignFileByWidth(inputName: String, outputName: String) {
             for (chr in it.trim().replace(" {2,}".toRegex(), " ")) {
                 if (chr == ' ') {
                     append(' ')
-                    append(buildString { for (i in 1..addPerSpace) append(' ') })
+                    append(" ".repeat(addPerSpace))
                     if (spacesLeft > 0) {
                         append(' ')
                         spacesLeft -= 1
@@ -354,15 +355,15 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
 fun noRepeats(str: String): Boolean = str.lowercase().toSet().size == str.length
 
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-    val ansSet = mutableSetOf<String>()
+    val ansSet = mutableListOf<String>()
     var maxLen = 0
     File(inputName).forEachLine {
-        if (noRepeats(it)) {
-            if (it.length > maxLen) {
+        if (noRepeats(it.trim { chr -> chr.isWhitespace() || chr == '\n' })) {
+            if (it.trim { chr -> chr.isWhitespace() || chr == '\n' }.length > maxLen) {
                 ansSet.clear()
                 ansSet.add(it)
-                maxLen = it.length
-            } else if (it.length == maxLen)
+                maxLen = it.trim { chr -> chr.isWhitespace() || chr == '\n' }.length
+            } else if (it.trim { chr -> chr.isWhitespace() || chr == '\n' }.length == maxLen)
                 ansSet.add(it)
         }
     }
@@ -432,7 +433,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             writer.newLine()
             buff = ""
         }
-        if (buff == "*" && byte != '*'){
+        if (buff == "*" && byte != '*') {
             if (stack.isNotEmpty() && stack.last() == "</i>") {
                 writer.write(stack.last())
                 stack.removeLast()
@@ -642,20 +643,15 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
     writer.newLine()
     writer.write(buildString {
         append('*')
-        for (i in 2..(lineLen - rhv.toString().length))
-            append(" ")
+        append(" ".repeat(lineLen - rhv.toString().length - 1))
         append(rhv)
     })
     writer.newLine()
-    writer.write(buildString {
-        for (i in 1..lineLen)
-            append("-")
-    })
+    writer.write("-".repeat(lineLen))
     writer.newLine()
     val mul = rhv.toString().reversed()
     writer.write(buildString {
-        for (i in 1..(lineLen - (lhv * (rhv % 10)).toString().length))
-            append(" ")
+        append(" ".repeat(lineLen - (lhv * (rhv % 10)).toString().length))
         append(lhv * (rhv % 10))
     })
     writer.newLine()
@@ -663,16 +659,12 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
         val num = lhv * mul[k].digitToInt()
         writer.write(buildString {
             append('+')
-            for (i in 2..(lineLen - num.toString().length - k))
-                append(" ")
+            append(" ".repeat(lineLen - num.toString().length - k - 1))
             append(num)
         })
         writer.newLine()
     }
-    writer.write(buildString {
-        for (i in 1..lineLen)
-            append("-")
-    })
+    writer.write("-".repeat(lineLen))
     writer.newLine()
     writer.write(buildString {
         append(" ")
@@ -718,18 +710,18 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
         val num = rhv * (ans[i] - '0')
         if (rem != "")
             offset += rem.length - num.toString().length - 1
-        writer.write(buildString { for (j in 1 until offset) append(" ") })
+        writer.write(" ".repeat(offset - 1))
         writer.write("-")
         writer.write(num.toString())
         if (i == 0) {
-            writer.write(buildString { for (j in 1 until lhv.toString().length + 4 - num.toString().length) append(' ') })
+            writer.write(" ".repeat(lhv.toString().length + 3 - num.toString().length))
             writer.write(ans)
         }
         writer.newLine()
-        writer.write(buildString { for (j in 1 until offset) append(" ") })
-        writer.write(buildString { for (j in 1..num.toString().length + 1) append("-") })
+        writer.write(" ".repeat(offset - 1))
+        writer.write("-".repeat(max(num.toString().length + 1, rem.length)))
         writer.newLine()
-        writer.write(buildString { for (j in 1 until offset) append(" ") })
+        writer.write(" ".repeat(offset - 1))
         if (rem == "") {
             rem = lhv.toString().substring(pos, min(pos + num.toString().length, lhv.toString().length))
             pos = min(pos + num.toString().length, lhv.toString().length)
@@ -737,7 +729,7 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             pos += 1
         }
         rem = (rem.toInt() - num).toString()
-        writer.write(buildString { for (j in 1..num.toString().length - rem.length + 1) append(" ") })
+        writer.write(" ".repeat(num.toString().length - rem.length + 1))
         writer.write(rem)
         offset += num.toString().length - rem.length + 1
         if (pos < lhv.toString().length) {
@@ -748,4 +740,3 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     }
     writer.close()
 }
-
