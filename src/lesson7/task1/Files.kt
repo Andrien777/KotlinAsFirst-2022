@@ -428,21 +428,22 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
         val byte = if (rawByte == 13 || rawByte == 10) '\n' else rawByte.toChar()
         if (rawByte == 13)
             reader.read()
-        if (byte in "*~\n") {
-            if (buff == "*" && byte != '*') {
-                if (stack.isNotEmpty() && stack.last() == "</i>") {
-                    writer.write(stack.last())
-                    stack.removeLast()
-                } else {
-                    writer.write("<i>")
-                    stack.add("</i>")
-                }
-                buff = ""
-            } else if (buff == "\n" && byte != '\n') {
-                writer.newLine()
-                buff = ""
+        if (buff == "\n" && byte != '\n') {
+            writer.newLine()
+            buff = ""
+        }
+        if (buff == "*" && byte != '*'){
+            if (stack.isNotEmpty() && stack.last() == "</i>") {
+                writer.write(stack.last())
+                stack.removeLast()
+            } else {
+                writer.write("<i>")
+                stack.add("</i>")
             }
-            buff += byte
+            buff = ""
+        }
+        if (byte in "*~\n") {
+            buff += byte.toString()
             when (buff) {
                 "**" -> {
                     if (stack.isNotEmpty() && stack.last() == "</b>") {
@@ -478,35 +479,8 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                     }
                     buff = ""
                 }
-
-                else -> {
-                    writer.write(buff[0].toString())
-                    buff = byte.toString()
-                }
             }
         } else {
-            when (buff) {
-                "*" -> {
-                    if (stack.isNotEmpty() && stack.last() == "</i>") {
-                        writer.write(stack.last())
-                        stack.removeLast()
-                    } else {
-                        writer.write("<i>")
-                        stack.add("</i>")
-                    }
-                    buff = ""
-                }
-
-                "\n" -> {
-                    writer.newLine()
-                    buff = ""
-                }
-
-                else -> {
-                    writer.write(buff)
-                    buff = ""
-                }
-            }
             writer.write(byte.toString())
         }
     }
