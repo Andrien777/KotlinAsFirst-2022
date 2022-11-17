@@ -4,8 +4,6 @@ package lesson7.task1
 
 import java.io.File
 import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.min
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -416,81 +414,82 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    val stack = ArrayDeque<String>()
-    val reader = File(inputName).inputStream()
-    val writer = File(outputName).bufferedWriter()
-    writer.write("<html><body><p>")
-    stack.add("</html>")
-    stack.add("</body>")
-    stack.add("</p>")
-    var buff = ""
-    while (reader.available() > 0) {
-        val rawByte = reader.read()
-        val byte = if (rawByte == 13 || rawByte == 10) '\n' else rawByte.toChar()
-        if (rawByte == 13)
-            reader.read()
-        if (buff == "\n" && byte != '\n') {
-            writer.newLine()
-            buff = ""
-        }
-        if (buff == "*" && byte != '*') {
-            if (stack.isNotEmpty() && stack.last() == "</i>") {
-                writer.write(stack.last())
-                stack.removeLast()
-            } else {
-                writer.write("<i>")
-                stack.add("</i>")
-            }
-            buff = ""
-        }
-        if (byte in "*~\n") {
-            buff += byte.toString()
-            when (buff) {
-                "**" -> {
-                    if (stack.isNotEmpty() && stack.last() == "</b>") {
-                        writer.write(stack.last())
-                        stack.removeLast()
-                    } else {
-                        writer.write("<b>")
-                        stack.add("</b>")
-                    }
-                    buff = ""
-                }
-
-                "~~" -> {
-                    if (stack.isNotEmpty() && stack.last() == "</s>") {
-                        writer.write(stack.last())
-                        stack.removeLast()
-                    } else {
-                        writer.write("<s>")
-                        stack.add("</s>")
-                    }
-                    buff = ""
-                }
-
-                "\n\n" -> {
-                    if (stack.isNotEmpty() && "</p>" in stack) {
-                        writer.write(stack.last())
-                        stack.remove("</p>")
-                        writer.write("<p>")
-                        stack.add("</p>")
-                    } else {
-                        writer.write("<p>")
-                        stack.add("</p>")
-                    }
-                    buff = ""
-                }
-            }
-        } else {
-            writer.write(byte.toString())
-        }
-    }
-    while (stack.isNotEmpty()) {
-        writer.write(stack.last())
-        stack.removeLast()
-    }
-    writer.close()
-    reader.close()
+    TODO()
+//    val stack = ArrayDeque<String>()
+//    val reader = File(inputName).inputStream()
+//    val writer = File(outputName).bufferedWriter()
+//    writer.write("<html><body><p>")
+//    stack.add("</html>")
+//    stack.add("</body>")
+//    stack.add("</p>")
+//    var buff = ""
+//    while (reader.available() > 0) {
+//        val rawByte = reader.read()
+//        val byte = if (rawByte == 13 || rawByte == 10) '\n' else rawByte.toChar()
+//        if (rawByte == 13)
+//            reader.read()
+//        if (buff == "\n" && byte != '\n') {
+//            writer.newLine()
+//            buff = ""
+//        }
+//        if (buff == "*" && byte != '*') {
+//            if (stack.isNotEmpty() && stack.last() == "</i>") {
+//                writer.write(stack.last())
+//                stack.removeLast()
+//            } else {
+//                writer.write("<i>")
+//                stack.add("</i>")
+//            }
+//            buff = ""
+//        }
+//        if (byte in "*~\n") {
+//            buff += byte.toString()
+//            when (buff) {
+//                "**" -> {
+//                    if (stack.isNotEmpty() && stack.last() == "</b>") {
+//                        writer.write(stack.last())
+//                        stack.removeLast()
+//                    } else {
+//                        writer.write("<b>")
+//                        stack.add("</b>")
+//                    }
+//                    buff = ""
+//                }
+//
+//                "~~" -> {
+//                    if (stack.isNotEmpty() && stack.last() == "</s>") {
+//                        writer.write(stack.last())
+//                        stack.removeLast()
+//                    } else {
+//                        writer.write("<s>")
+//                        stack.add("</s>")
+//                    }
+//                    buff = ""
+//                }
+//
+//                "\n\n" -> {
+//                    if (stack.isNotEmpty() && "</p>" in stack) {
+//                        writer.write(stack.last())
+//                        stack.remove("</p>")
+//                        writer.write("<p>")
+//                        stack.add("</p>")
+//                    } else {
+//                        writer.write("<p>")
+//                        stack.add("</p>")
+//                    }
+//                    buff = ""
+//                }
+//            }
+//        } else {
+//            writer.write(byte.toString())
+//        }
+//    }
+//    while (stack.isNotEmpty()) {
+//        writer.write(stack.last())
+//        stack.removeLast()
+//    }
+//    writer.close()
+//    reader.close()
 }
 
 /**
@@ -696,47 +695,48 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  *
  */
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    val ans = (lhv / rhv).toString()
-    val writer = File(outputName).bufferedWriter()
-    writer.write(" ")
-    writer.write(lhv.toString())
-    writer.write(" | ")
-    writer.write(rhv.toString())
-    writer.newLine()
-    var offset = 1
-    var pos = 0
-    var rem = ""
-    for (i in ans.indices) {
-        val num = rhv * (ans[i] - '0')
-        if (rem != "")
-            offset += rem.length - num.toString().length - 1
-        writer.write(" ".repeat(offset - 1))
-        writer.write("-")
-        writer.write(num.toString())
-        if (i == 0) {
-            writer.write(" ".repeat(lhv.toString().length + 3 - num.toString().length))
-            writer.write(ans)
-        }
-        writer.newLine()
-        writer.write(" ".repeat(offset - 1))
-        writer.write("-".repeat(max(num.toString().length + 1, rem.length)))
-        writer.newLine()
-        writer.write(" ".repeat(offset - 1))
-        if (rem == "") {
-            rem = lhv.toString().substring(pos, min(pos + num.toString().length, lhv.toString().length))
-            pos = min(pos + num.toString().length, lhv.toString().length)
-        } else {
-            pos += 1
-        }
-        rem = (rem.toInt() - num).toString()
-        writer.write(" ".repeat(num.toString().length - rem.length + 1))
-        writer.write(rem)
-        offset += num.toString().length - rem.length + 1
-        if (pos < lhv.toString().length) {
-            writer.write(lhv.toString()[pos].toString())
-            rem += lhv.toString()[pos]
-        }
-        writer.newLine()
-    }
-    writer.close()
+    TODO()
+//    val ans = (lhv / rhv).toString()
+//    val writer = File(outputName).bufferedWriter()
+//    writer.write(" ")
+//    writer.write(lhv.toString())
+//    writer.write(" | ")
+//    writer.write(rhv.toString())
+//    writer.newLine()
+//    var offset = 1
+//    var pos = 0
+//    var rem = ""
+//    for (i in ans.indices) {
+//        val num = rhv * (ans[i] - '0')
+//        if (rem != "")
+//            offset += rem.length - num.toString().length - 1
+//        writer.write(" ".repeat(offset - 1))
+//        writer.write("-")
+//        writer.write(num.toString())
+//        if (i == 0) {
+//            writer.write(" ".repeat(lhv.toString().length + 3 - num.toString().length))
+//            writer.write(ans)
+//        }
+//        writer.newLine()
+//        writer.write(" ".repeat(offset - 1))
+//        writer.write("-".repeat(max(num.toString().length + 1, rem.length)))
+//        writer.newLine()
+//        writer.write(" ".repeat(offset - 1))
+//        if (rem == "") {
+//            rem = lhv.toString().substring(pos, min(pos + num.toString().length, lhv.toString().length))
+//            pos = min(pos + num.toString().length, lhv.toString().length)
+//        } else {
+//            pos += 1
+//        }
+//        rem = (rem.toInt() - num).toString()
+//        writer.write(" ".repeat(num.toString().length - rem.length + 1))
+//        writer.write(rem)
+//        offset += num.toString().length - rem.length + 1
+//        if (pos < lhv.toString().length) {
+//            writer.write(lhv.toString()[pos].toString())
+//            rem += lhv.toString()[pos]
+//        }
+//        writer.newLine()
+//    }
+//    writer.close()
 }
