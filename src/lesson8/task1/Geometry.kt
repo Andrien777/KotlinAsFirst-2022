@@ -97,8 +97,7 @@ data class Segment(val begin: Point, val end: Point) {
     override fun equals(other: Any?) =
         other is Segment && (begin == other.begin && end == other.end || end == other.begin && begin == other.end)
 
-    override fun hashCode() =
-        begin.hashCode() + end.hashCode()
+    override fun hashCode() = begin.hashCode() + end.hashCode()
 
     fun length() = begin.distance(end)
 
@@ -123,6 +122,7 @@ fun diameter(vararg points: Point): Segment {
     }
     return diam
 }
+
 
 /**
  * Простая (2 балла)
@@ -261,50 +261,65 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
+
+fun diamCircle(vararg points: Point): Circle = circleByDiameter(diameter(*points))
+
+fun pointsAreNotOnLine(pt1: Point, pt2: Point, pt3: Point): Boolean {
+    val line = lineByPoints(pt1, pt2)
+    return pt3.y * cos(line.angle) != pt3.x * sin(line.angle) + line.b
+}
+
 fun minContainingCircle(vararg points: Point): Circle {
-    TODO()
-//    when (points.size) {
-//        0 -> throw IllegalArgumentException()
-//        1 -> return Circle(points[0], 0.0)
-//        2 -> return circleByDiameter(Segment(points[0], points[1]))
-//        3 -> return circleByThreePoints(points[0], points[1], points[2])
-//    }
-//    var ans = circleByThreePoints(points[0], points[1], points[2])
-//    val pts = mutableListOf(points[0], points[1], points[2])
-//    var test: Circle
-//    for (i in 4 until points.size) {
-//        if (ans.contains(points[i])) continue
-//        var minR = Double.MAX_VALUE
-//        var temppts = pts
-//        try {
-//            ans = circleByThreePoints(points[i], pts[1], pts[2])
-//            if (ans.contains(pts[0])) {
-//                minR = ans.radius
-//                temppts[0] = points[i]
-//            }
-//        } catch (_: Exception) { null }
-//        try {
-//            test = circleByThreePoints(pts[0], points[i], pts[2])
-//            if (test.contains(pts[1]) && test.radius < minR) {
-//                minR = test.radius
-//                temppts = pts
-//                temppts[1] = points[i]
-//                ans = test
-//            }
-//        } catch (_: Exception) { null }
-//        try {
-//            test = circleByThreePoints(pts[0], pts[1], points[i])
-//            if (test.contains(pts[2]) && test.radius < minR) {
-//                minR = test.radius
-//                temppts = pts
-//                temppts[1] = points[i]
-//                ans = test
-//            }
-//        } catch (_: IllegalArgumentException) { null }
-//    }
-//    test = circleByDiameter(diameter(*points))
-//    if (test.radius > ans.radius || points.any { !test.contains(it) })
-//        return ans
-//    return test
+    when (points.size) {
+        0 -> throw IllegalArgumentException()
+        1 -> return Circle(points[0], 0.0)
+        2 -> return circleByDiameter(Segment(points[0], points[1]))
+        3 -> return if (pointsAreNotOnLine(points[0], points[1], points[2])) circleByThreePoints(
+            points[0], points[1], points[2]
+        ) else diamCircle(points[0], points[1], points[2])
+    }
+    val EPS = 0.01
+    var ans = Circle(Point(.0, .0), Double.MAX_VALUE)
+    for (i in 0 until points.size - 1) {
+        for (j in i + 1 until points.size) {
+            var circ = circleByDiameter(Segment(points[i], points[j]))
+            if (points.all { circ.contains(it) }) {
+                if (circ.radius < ans.radius)
+                    ans = circ
+                continue
+            }
+            if (!(points.all { ((it.x - points[i].x) * (points[j].y - points[i].y) - (it.y - points[i].y) * (points[j].x - points[i].x)) >= 0}
+                        || points.all { ((it.x - points[i].x) * (points[j].y - points[i].y) - (it.y - points[i].y) * (points[j].x - points[i].x)) <= 0 }))
+                continue
+            val line = bisectorByPoints(points[i], points[j])
+            var stepX = cos(line.angle) * EPS
+            var stepY = sin(line.angle) * EPS
+            var checkPoint = points.random()
+            while (checkPoint == points[i] || checkPoint == points[j]) {
+                checkPoint = points.random()
+            }
+            val pt = Segment(points[i], points[j]).midPoint()
+            if (pt.distance(checkPoint) < Point(pt.x + stepX, pt.y + stepY).distance(checkPoint)) {
+                stepX *= -1
+                stepY *= -1
+            }
+            var z = 0
+            var flag: Boolean
+            do {
+                val ptr = Point(pt.x + z * stepX, pt.y + z * stepY)
+                circ = Circle(ptr, ptr.distance(points[i]))
+                flag = true
+                for (p in points) {
+                    if (!circ.contains(p)) {
+                        flag = false
+                    }
+                }
+                z++
+            } while (!flag)
+            if (circ.radius < ans.radius)
+                ans = circ
+        }
+    }
+    return ans
 }
 
