@@ -175,14 +175,24 @@ class Line private constructor(val b: Double, val angle: Double) {
  *
  * Построить прямую по отрезку
  */
-fun lineBySegment(s: Segment): Line = Line(s.begin, acos((s.end.x - s.begin.x) / s.length()))
+fun lineBySegment(s: Segment): Line {
+    var angle = acos((s.end.x - s.begin.x) / s.length())
+    if (abs(angle - PI) < 1e-5)
+        angle = 0.0
+    return Line(s.begin, angle)
+}
 
 /**
  * Средняя (3 балла)
  *
  * Построить прямую по двум точкам
  */
-fun lineByPoints(a: Point, b: Point): Line = Line(a, acos((b.x - a.x) / a.distance(b)))
+fun lineByPoints(a: Point, b: Point): Line {
+    var angle = acos((b.x - a.x) / a.distance(b))
+    if (abs(angle - PI) < 1e-5)
+        angle = 0.0
+    return Line(a, angle)
+}
 
 /**
  * Сложная (5 баллов)
@@ -278,7 +288,7 @@ fun minContainingCircle(vararg points: Point): Circle {
             points[0], points[1], points[2]
         ) else diamCircle(points[0], points[1], points[2])
     }
-    val EPS = 0.01
+    val EPS = 0.05
     var ans = Circle(Point(.0, .0), Double.MAX_VALUE)
     for (i in 0 until points.size - 1) {
         for (j in i + 1 until points.size) {
