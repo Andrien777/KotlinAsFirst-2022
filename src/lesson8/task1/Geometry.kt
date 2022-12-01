@@ -175,14 +175,14 @@ class Line private constructor(val b: Double, val angle: Double) {
  *
  * Построить прямую по отрезку
  */
-fun lineBySegment(s: Segment): Line = Line(s.begin, acos((s.end.x - s.begin.x) / s.length()))
+fun lineBySegment(s: Segment): Line = Line(s.begin, (atan((s.end.y - s.begin.y) / (s.end.x - s.begin.x)) + PI) % PI)
 
 /**
  * Средняя (3 балла)
  *
  * Построить прямую по двум точкам
  */
-fun lineByPoints(a: Point, b: Point): Line = Line(a, acos((b.x - a.x) / a.distance(b)))
+fun lineByPoints(a: Point, b: Point): Line = Line(a, (atan((b.y - a.y) / (b.x - a.x)) + PI) % PI)
 
 /**
  * Сложная (5 баллов)
@@ -270,56 +270,34 @@ fun pointsAreNotOnLine(pt1: Point, pt2: Point, pt3: Point): Boolean {
 }
 
 fun minContainingCircle(vararg points: Point): Circle {
-    when (points.size) {
-        0 -> throw IllegalArgumentException()
-        1 -> return Circle(points[0], 0.0)
-        2 -> return circleByDiameter(Segment(points[0], points[1]))
-        3 -> return if (pointsAreNotOnLine(points[0], points[1], points[2])) circleByThreePoints(
-            points[0], points[1], points[2]
-        ) else diamCircle(points[0], points[1], points[2])
-    }
-    val EPS = 0.01
-    var ans = Circle(Point(.0, .0), Double.MAX_VALUE)
-    for (i in 0 until points.size - 1) {
-        for (j in i + 1 until points.size) {
-            var circ = circleByDiameter(Segment(points[i], points[j]))
-            if (points.all { circ.contains(it) }) {
-                if (circ.radius < ans.radius)
-                    ans = circ
-                continue
-            }
-            if (!(points.all { ((it.x - points[i].x) * (points[j].y - points[i].y) - (it.y - points[i].y) * (points[j].x - points[i].x)) >= 0}
-                        || points.all { ((it.x - points[i].x) * (points[j].y - points[i].y) - (it.y - points[i].y) * (points[j].x - points[i].x)) <= 0 }))
-                continue
-            val line = bisectorByPoints(points[i], points[j])
-            var stepX = cos(line.angle) * EPS
-            var stepY = sin(line.angle) * EPS
-            var checkPoint = points.random()
-            while (checkPoint == points[i] || checkPoint == points[j]) {
-                checkPoint = points.random()
-            }
-            val pt = Segment(points[i], points[j]).midPoint()
-            if (pt.distance(checkPoint) < Point(pt.x + stepX, pt.y + stepY).distance(checkPoint)) {
-                stepX *= -1
-                stepY *= -1
-            }
-            var z = 0
-            var flag: Boolean
-            do {
-                val ptr = Point(pt.x + z * stepX, pt.y + z * stepY)
-                circ = Circle(ptr, ptr.distance(points[i]))
-                flag = true
-                for (p in points) {
-                    if (!circ.contains(p)) {
-                        flag = false
-                    }
-                }
-                z++
-            } while (!flag)
-            if (circ.radius < ans.radius)
-                ans = circ
-        }
-    }
-    return ans
+    TODO()
+//    when (points.size) {
+//        0 -> throw IllegalArgumentException()
+//        1 -> return Circle(points[0], 0.0)
+//        2 -> return circleByDiameter(Segment(points[0], points[1]))
+//        3 -> return if (pointsAreNotOnLine(points[0], points[1], points[2])) circleByThreePoints(
+//            points[0], points[1], points[2]
+//        ) else diamCircle(points[0], points[1], points[2])
+//    }
+//    var ans = Circle(Point(.0, .0), Double.MAX_VALUE)
+//    for (i in 0 until points.size - 1) {
+//        for (j in i + 1 until points.size) {
+//            val test = circleByDiameter(Segment(points[i], points[j]))
+//            if (points.all { test.contains(it) } && (test.radius <= ans.radius))
+//                ans = test
+//        }
+//    }
+//    for (i in 0 until points.size - 2) {
+//        for (j in i + 1 until points.size - 1) {
+//            for (k in j + 1 until points.size) {
+//                if (pointsAreNotOnLine(points[i], points[j], points[k])) {
+//                    val test = circleByThreePoints(points[i], points[j], points[k])
+//                    if (points.all { test.contains(it) } && (test.radius <= ans.radius))
+//                        ans = test
+//                }
+//            }
+//        }
+//    }
+//    return ans
 }
 
