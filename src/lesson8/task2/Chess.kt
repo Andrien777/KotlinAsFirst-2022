@@ -146,10 +146,18 @@ fun bishopTrajectory(start: Square, end: Square): List<Square> {
     val ans = listOf(start)
     if (start == end) return ans
     if (bishopMoveNumber(start, end) == 1) return ans + end
-    val row = (start.row + end.row) / 2
-    for (col in 1..8) {
-        val sq = Square(col, row)
-        if (bishopMoveNumber(start, sq) == 1 && bishopMoveNumber(sq, end) == 1) return ans + sq + end
+    if (start.row != end.row) {
+        val row = (start.row + end.row) / 2
+        for (col in 1..8) {
+            val sq = Square(col, row)
+            if (bishopMoveNumber(start, sq) == 1 && bishopMoveNumber(sq, end) == 1) return ans + sq + end
+        }
+    } else {
+        val col = (start.column + end.column) / 2
+        for (row in 1..8) {
+            val sq = Square(col, row)
+            if (bishopMoveNumber(start, sq) == 1 && bishopMoveNumber(sq, end) == 1) return ans + sq + end
+        }
     }
     return ans + Square(-1, -1)
 }
@@ -198,7 +206,6 @@ fun kingMoveNumber(start: Square, end: Square): Int {
 fun sign(n: Int): Int = if (n > 0) 1 else if (n == 0) 0 else -1
 
 fun kingTrajectory(start: Square, end: Square): List<Square> {
-    if (bishopMoveNumber(start, end) == -1) return listOf()
     val ans = mutableListOf(start)
     if (start == end) return ans
     var sq = Square(start.column + sign(end.column - start.column), start.row + sign(end.row - start.row))
