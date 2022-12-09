@@ -2,6 +2,8 @@
 
 package lesson9.task1
 
+import ru.spbstu.wheels.allIndexed
+
 // Урок 9: проектирование классов
 // Максимальное количество баллов = 40 (без очень трудных задач = 15)
 
@@ -44,32 +46,49 @@ interface Matrix<E> {
  * height = высота, width = ширина, e = чем заполнить элементы.
  * Бросить исключение IllegalArgumentException, если height или width <= 0.
  */
-fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = TODO()
+fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = MatrixImpl(height, width, e)
 
 /**
  * Средняя сложность (считается двумя задачами в 3 балла каждая)
  *
  * Реализация интерфейса "матрица"
  */
-class MatrixImpl<E> : Matrix<E> {
-    override val height: Int = TODO()
+class MatrixImpl<E>(override val height: Int, override val width: Int, val e: E) : Matrix<E> {
 
-    override val width: Int = TODO()
+    private val data = MutableList(height) { MutableList(width) { e } }
 
-    override fun get(row: Int, column: Int): E = TODO()
+    override fun get(row: Int, column: Int): E = data[row][column]
 
-    override fun get(cell: Cell): E = TODO()
+    override fun get(cell: Cell): E = data[cell.row][cell.column]
 
     override fun set(row: Int, column: Int, value: E) {
-        TODO()
+        data[row][column] = value
     }
 
     override fun set(cell: Cell, value: E) {
-        TODO()
+        data[cell.row][cell.column] = value
     }
 
-    override fun equals(other: Any?) = TODO()
+    override fun equals(other: Any?) =
+        other is Matrix<*> &&
+                this.height == other.height &&
+                this.width == other.width &&
+                this.data.allIndexed { i, row -> row.allIndexed { j, elem -> other[i, j] == elem } }
 
-    override fun toString(): String = TODO()
+    override fun hashCode(): Int {
+        var ans = 5
+        ans += 31 * height
+        ans += 31 * width
+        ans += data.hashCode()
+        return ans
+    }
+
+    override fun toString(): String = buildString {
+        append("[\n")
+        for (row in data) {
+            append(row.joinToString(separator = "; ", prefix = "[", postfix = "]\n"))
+        }
+        append(']')
+    }
 }
 

@@ -146,17 +146,11 @@ fun bishopTrajectory(start: Square, end: Square): List<Square> {
     val ans = listOf(start)
     if (start == end) return ans
     if (bishopMoveNumber(start, end) == 1) return ans + end
-    if (start.row != end.row) {
-        val row = (start.row + end.row) / 2
-        for (col in 1..8) {
-            val sq = Square(col, row)
-            if (bishopMoveNumber(start, sq) == 1 && bishopMoveNumber(sq, end) == 1) return ans + sq + end
-        }
-    } else {
-        val col = (start.column + end.column) / 2
+    for (col in 1..8) {
         for (row in 1..8) {
-            val sq = Square(col, row)
-            if (bishopMoveNumber(start, sq) == 1 && bishopMoveNumber(sq, end) == 1) return ans + sq + end
+            val test = Square(col, row)
+            if (bishopMoveNumber(start, test) == 1 && bishopMoveNumber(test, end) == 1)
+                return ans + test + end
         }
     }
     return ans + Square(-1, -1)
