@@ -247,11 +247,11 @@ fun sumNeighbours(matrix: Matrix<Int>): Matrix<Int> {
  */
 fun findHoles(matrix: Matrix<Int>): Holes {
     val rows = mutableListOf<Int>()
-    var cols = mutableListOf<Int>()
+    val cols = mutableListOf<Int>()
     for (i in 0 until matrix.height) {
         var flag = true
         for (j in 0 until matrix.width) {
-            if (matrix[i, j] != 0){
+            if (matrix[i, j] != 0) {
                 flag = false
                 break
             }
@@ -261,7 +261,7 @@ fun findHoles(matrix: Matrix<Int>): Holes {
     for (j in 0 until matrix.width) {
         var flag = true
         for (i in 0 until matrix.height) {
-            if (matrix[i, j] != 0){
+            if (matrix[i, j] != 0) {
                 flag = false
                 break
             }
@@ -313,7 +313,7 @@ fun sumSubMatrix(matrix: Matrix<Int>): Matrix<Int> {
  * При инвертировании знак каждого элемента матрицы следует заменить на обратный
  */
 operator fun Matrix<Int>.unaryMinus(): Matrix<Int> {
-    var ans = createMatrix(this.height, this.width, 0)
+    val ans = createMatrix(this.height, this.width, 0)
     for (i in 0 until this.height) {
         for (j in 0 until this.width) {
             ans[i, j] = -this[i, j]
@@ -411,7 +411,55 @@ fun canOpenLock(key: Matrix<Int>, lock: Matrix<Int>): Triple<Boolean, Int, Int> 
  * 0  4 13  6
  * 3 10 11  8
  */
-fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> = TODO()
+fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
+    val ans = createMatrix(4, 4, 0)
+    for (i in 0..3) {
+        for (j in 0..3) {
+            ans[i, j] = matrix[i, j]
+        }
+    }
+    for (move in moves) {
+        var x = -1
+        var y = -1
+        for (i in 0..3) {
+            for (j in 0..3) {
+                if (ans[i, j] == move) {
+                    x = i
+                    y = j
+                    break
+                }
+            }
+            if (x > 0) break
+        }
+        if (x < 0) throw IllegalStateException()
+        for (dx in -1..1) {
+            if (dx == 0) {
+                for (dy in -1..1) {
+                    if (dy != 0) {
+                        if (y + dy in 0..3) {
+                            if (ans[x, y + dy] == 0) {
+                                ans[x, y] = 0
+                                ans[x, y + dy] = move
+                                break
+                            }
+                        }
+                    }
+                }
+                if (ans[x, y] == 0) break
+            } else {
+                if (x + dx in 0..3) {
+                    if (ans[x + dx, y] == 0) {
+                        ans[x, y] = 0
+                        ans[x + dx, y] = move
+                        break
+                    }
+                }
+            }
+        }
+        if (ans[x, y] != 0) throw IllegalStateException()
+    }
+    return ans
+}
 
 /**
  * Очень сложная (32 балла)
