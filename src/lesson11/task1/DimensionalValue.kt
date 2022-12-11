@@ -20,10 +20,20 @@ import kotlin.math.abs
  */
 class DimensionalValue(value: Double, dimension: String) : Comparable<DimensionalValue> {
 
-    private val multiplier = if (dimension.length == 1) 1.0 else when (dimension[0]) {
-        'K' -> 1000.0
-        'm' -> 0.001
-        else -> throw IllegalStateException()
+    private var multiplier = -1.0
+
+    init {
+        if (dimension.length == 1)
+            multiplier = 1.0
+        else {
+            for (pref in DimensionPrefix.values()) {
+                if (dimension[0].toString() == pref.abbreviation) {
+                    this.multiplier = pref.multiplier
+                    break
+                }
+            }
+            if (abs(this.multiplier + 1.0) < Double.MIN_VALUE) throw IllegalStateException()
+        }
     }
 
     private val rawValue = value
@@ -39,18 +49,13 @@ class DimensionalValue(value: Double, dimension: String) : Comparable<Dimensiona
      * БАЗОВАЯ размерность (опять-таки для 1.0Kg следует вернуть GRAM)
      */
     val dimension: Dimension
-        get() =
-            if (rawDimension.length == 1)
-                when (rawDimension) {
-                    "m" -> Dimension.METER
-                    "g" -> Dimension.GRAM
-                    else -> throw IllegalStateException()
-                }
-            else when (rawDimension[1]) {
-                'm' -> Dimension.METER
-                'g' -> Dimension.GRAM
-                else -> throw IllegalStateException()
+        get() {
+            val char = rawDimension.last().toString()
+            for (dim in Dimension.values()) {
+                if (char == dim.abbreviation) return dim
             }
+            throw IllegalStateException()
+        }
 
     /**
      * Конструктор из строки. Формат строки: значение пробел размерность (1 Kg, 3 mm, 100 g и так далее).
